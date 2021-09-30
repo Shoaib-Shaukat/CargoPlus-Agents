@@ -1,0 +1,38 @@
+
+
+
+
+.tab2{
+    height:300px;
+}
+/* .tabs-container .nav > li > a:hover,
+.tabs-container .nav > li > a:focus {
+  background-color: #c0a264;
+  color: white;
+} */
+.ml-5, .mx-5 {
+    margin-left: 3rem!important;
+}
+
+.modal-xl {
+    max-width: 1100px !important;
+}
+.btn-outline-secondary{
+    height: 2.05rem;
+}
+.ml-3, .mx-3 {
+    margin-left: 1rem!important;
+}
+.bd-WeightRPT-modal-xl {
+    max-width: 1100px !important;
+}
+.blink_me {
+    animation: blinker 1s linear infinite;
+    text-transform: uppercase;
+  }
+  
+  @keyframes blinker {
+    50% {
+      opacity: 0;
+    }
+  }

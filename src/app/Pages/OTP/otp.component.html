@@ -1,0 +1,49 @@
+<div class="limiter">
+    <div class="container-login100">
+        <div class="wrap-login100">
+            <div class="login100-form-title" style="background-image: url('assets/img/logo-tw-home1.JPG');">
+                <h2 style="color: white;">Enter OTP</h2>
+                <p style="color: white;">We have sent you an email with a code</p>
+            </div>
+            <form [formGroup]="otpForm" enctype="multipart/form-data" role="form" class="login100-form validate-form">
+                <div class="wrap-input100 validate-input m-b-26" data-validate="Email is required">
+                    <form action="javascript:" class="form-inline">
+                        <div class="d-flex flex-row mt-4">
+                            <input type="text" class="Ellipse-16" autofocus="" maxlength="1" [(ngModel)]="otp1"
+                                [ngModelOptions]="{standalone: true}" (keyup)="keytab($event)">
+                            <input type="text" class="Ellipse-16" maxlength="1" [(ngModel)]="otp2"
+                                [ngModelOptions]="{standalone: true}" (keyup)="keytab($event)">
+                            <input type="text" class="Ellipse-16" maxlength="1" [(ngModel)]="otp3"
+                                [ngModelOptions]="{standalone: true}" (keyup)="keytab($event)">
+                            <input type="text" class="Ellipse-16" maxlength="1" [(ngModel)]="otp4"
+                                [ngModelOptions]="{standalone: true}" (keyup)="keytab($event)">
+                            <input type="text" class="Ellipse-16" maxlength="1" [(ngModel)]="otp5"
+                                [ngModelOptions]="{standalone: true}" (keyup)="keytab($event)">
+                            <input type="text" class="Ellipse-16" maxlength="1" [(ngModel)]="otp6"
+                                [ngModelOptions]="{standalone: true}" (keyup)="keytab($event)">
+                        </div>
+                        <div class="container-login100-form-btn">
+                            <button type="submit" (click)="verifyOTP()"
+                                class="btn btn-w-m btn-success btn-rounded custom-login-btn">
+                                <ng-container [ngTemplateOutlet]="clicked?loader:noLoader"></ng-container>
+                                <ng-template #noLoader>
+                                    SEND
+                                </ng-template>
+                                <ng-template #loader>
+                                    <img src="assets/img/ajax-loader.gif">
+                                </ng-template>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+
+                <div class="container-login100-form-btn">
+                    <p style="margin-left: 70px">Don't you received any code? <a (click)="resendCode()"><b>Resend
+                                Code</b></a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

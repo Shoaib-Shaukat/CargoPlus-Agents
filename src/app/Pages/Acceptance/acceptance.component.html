@@ -1,0 +1,1186 @@
+<div class="row   white-bg  m-2 mt-2 ModuleName ">
+    <div class="col-lg-3 Adjust">
+        <h2 class="text-white">Airway Bill</h2>
+    </div>
+    <div class="col-lg-4 Adjust">
+        <h3 class="text-danger float-right mt-4 blinking blink_me" [hidden]="AgentName == ''">{{AgentName}} is in Grey
+            List!
+        </h3>
+    </div>
+    <div class="col-lg-5 Adjust">
+        <!-- <h3 class="text-white float-right mt-4" [hidden]="editMode==false"><b>AWB Status:</b>
+            {{AcceptanceDetailModel.AWBDetail.AWBStatus}}
+        </h3> -->
+    </div>
+</div>
+<div class="row wrapper border-bottom white-bg page-heading m-2 mt-2">
+    <div class="col-md-6 mt-2">
+        <br>
+        <div class="input-group ">
+            <label class="col-form-label">Enter AWB Number</label>
+            <input type="text" class="form-control  ml-2" [(ngModel)]="AWBNo" (keyup.enter)="getAWBDetail()"
+                [igxMask]="'000-0000-0000'">
+            <div class="input-group-append">
+                <button type="button" class="btn btn-success btn-sm" (click)="getAWBDetail()"><i class="fa fa-search"
+                        aria-hidden="true"></i></button>
+            </div>
+        </div>
+    </div>
+    <!-- <button (click)="sendRCS()">RCS</button> -->
+    <div class="col-lg-5">
+        <div class="title-action">
+            <button [disabled]="delivered == true" [hidden]="editMode == true" type="button"
+                class="btn btn-w-m btn-success text-white color mr-2" (click)=" SaveAcceptance('New')"><i
+                    class="fa fa-check mr-1" aria-hidden="true"></i>New
+                AWB</button>
+            <button [disabled]="delivered == true" [hidden]="editMode == false" type="button"
+                class="btn btn-w-m btn-success text-white color mr-2" (click)="SaveAcceptance('Edit')"><i
+                    class="fa fa-pencil mr-1" aria-hidden="true"></i>Update
+                AWB</button>
+            <button type="button" class="btn btn-w-m btn-secondary color text-white" (click)="resetAcceptance()"><i
+                    class="fa fa-redo mr-1" aria-hidden="true"></i> Reset</button>
+        </div>
+    </div>
+</div>
+<div class="row wrapper border-bottom white-bg page-heading mt-2 m-2">
+    <div class="col-lg-12">
+        <form [formGroup]="acceptanceForm" role="form">
+            <br>
+            
+        
+
+            <div class="row">
+                <div class="col-sm">
+                    <div class="form-group  row"><label class="col-sm-4 col-form-label ">
+                            Airports</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" formControlName="airportID" (change)="getAllData()">
+                                <option *ngFor="let p of airportResponse" [value]="p.airportID">
+                                    {{p.airportName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group  row"><label class="col-sm-4 col-form-label ">
+                            AWB
+                            Number</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" formControlName="AWBNo"
+                                [igxMask]="'000-0000-0000'" (change)="selectAirline()">
+                        </div>
+                    </div>
+                    <div class="form-group  row"><label class="col-sm-4 col-form-label">Airline</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" formControlName="ALCode"
+                                (change)="setDestination(); getULD();">
+                                <option *ngFor="let p of responseAirLines" [value]="p.ALCode">
+                                    {{p.ALName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group  row"><label class="col-sm-4 col-form-label">Other
+                            Airline</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" formControlName="otherAirlineCode">
+                                <option *ngFor="let p of responseAirLines" [value]="p.ALCode">
+                                    {{p.ALName}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group  row"><label class="col-sm-4 col-form-label">No.
+                            of
+                            Pieces</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" formControlName="Pieces"
+                                numbersOnly>
+                        </div>
+                    </div>
+                    <div class="form-group  row"><label class="col-sm-4 col-form-label">Gross
+                            Weight</label>
+                        <div class="col-sm-8"><input type="text" class="form-control" appTwoDigitDecimaNumber
+                                formControlName="grossWeight">
+                        </div>
+                    </div>
+                    <div class="form-group  row"><label class="col-sm-4 col-form-label">Chargeable
+                            Weight</label>
+                        <div class="col-sm-8"><input type="text" class="form-control"
+                                formControlName="chargeableWeight">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm">
+                    <div class="form-group input-group row ">
+                        <label class="col-sm-4 col-form-label ">Nature of Goods</label>
+                        <select class="form-control col-sm-8 ml-4" formControlName="goodsId">
+                            <option [selected]="true">
+                                Select Nature of Good</option>
+                            <option *ngFor="let p of responseGoods" [value]="p.goodsId"
+                                [selected]="p.goodsId == GoodsID" id="natureOfGoodsClose">
+                                {{p.destination}}|{{p.Nature}}</option>
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary ml-2" type="button" title="Search"
+                                data-toggle="modal" data-target=".bd-example17-modal-xl"><i
+                                    class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group input-group row ">
+                        <label class="col-sm-4 col-form-label">Commodity</label>
+                        <select class="form-control col-sm-12 ml-4" formControlName="comid">
+                            <option *ngFor="let p of responseCommodity" [value]="p.comid">
+                                {{p.comm_description}}
+                            </option>
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary ml-2" type="button" data-toggle="modal"
+                                data-target=".bd-example13-modal-xl" title="Search"><i
+                                    class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group input-group row">
+                        <label class="col-sm-4 col-form-label">Agent Name</label>
+                        <select class="form-control col-sm-12 ml-4" formControlName="agentId" (change)="verifyAgent()">
+                            <option *ngFor="let p of agentsResponse" [value]="p.agentId">
+                                {{p.agentName}}
+                            </option>
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary ml-2" type="button" title="Search"
+                                data-toggle="modal" data-target=".bd-example14-modal-xl"><i
+                                    class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="input-group row mb-2">
+                        <label class="col-md-4 col-form-label">Select Shipper</label>
+                        <select class="form-control col-md-8 ml-4" formControlName="shipperId">
+                            <option *ngFor="let p of shippereResponse" [value]="p.shipperId">
+                                {{p.shipperName}}</option>
+                        </select>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary ml-2" type="button" data-toggle="modal"
+                                data-target=".bd-example15-modal-xl" title="Search"><i
+                                    class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="input-group row mb-2">
+                        <label class="col-md-4 col-form-label"> Select Cosignee</label>
+                        <select class="form-control col-md-8 ml-4" formControlName="cid">
+                            <option *ngFor="let p of consigneeResponse" [value]="p.cid">
+                                {{p.consigneeName}}</option>
+                        </select>
+
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary ml-2" type="button" title="Search"
+                                data-toggle="modal" data-target=".bd-example16-modal-xl"><i
+                                    class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                    <div class="form-group  row"><label class="col-sm-4 col-form-label">Destination</label>
+                        <div class="col-sm-8">
+                            <input type="text" formControlName="Destination" class="form-control" maxlength="3">
+                        </div>
+                    </div>
+                    <div class="form-group  row"><label class="col-sm-4 col-form-label">Load Type</label>
+                        <div class="col-sm-8">
+                            <select class="form-control" formControlName="laodType">
+                                <option *ngFor="let p of ULDData" [value]="p.ULDType">
+                                    {{p.ULDType}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group  row ">
+                        <label class="col-sm-4 col-form-label">Oversize</label>
+                        <input type="checkbox" formControlName="OvrShipment" class="form-control col-sm-1">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm">
+                    <div class="form-group  row"><label class="col-sm-4 col-form-label">AWB Remarks</label>
+                        <div class="col-sm-12"> <textarea class="form-control" formControlName="AcceptanceRemarks"
+                                maxlength="250" id="exampleFormControlTextarea1" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group  row fadeInRight float-right pr-3">
+
+            </div>
+        </form>
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeIn">
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="tabs-container">
+                <ul class="nav nav-tabs bg btn-w-m  color " role="tablist">
+                    <li><a class="nav-link text-white active" data-toggle="tab" href="#tab-8">House</a></li>
+                    <li><a class="nav-link text-white" data-toggle="tab" href="#tab-9">Attachment</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div role="tabpanel" id="tab-8" class="tab-pane active">
+                        <div class="panel-body">
+                            <div class="col-lg-12">
+                                <div class="col-md-12" [hidden]="addnewHouse">
+                                    <form [formGroup]="houseForm" role="form">
+                                        <br>
+                                        <div class="row">
+                                            <div class="col-sm">
+                                                <div class="form-group  row"><label class="col-sm-4 col-form-label">HAWB
+                                                        No.</label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" formControlName="HAWBNo"
+                                                            oninput="this.value = this.value.toUpperCase()"
+                                                            class="form-control" maxlength="20">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group  row"><label class="col-sm-4 col-form-label">No.
+                                                        of Pieces</label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" formControlName="pieces" numbersOnly
+                                                            class="form-control"
+                                                            (change)="getChargeable(); verifyPieces();">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group  row">
+                                                    <label class="col-sm-1 col-form-label">L </label>
+                                                    <div class="col-sm-3">
+                                                        <input type="text" formControlName="length" class="form-control"
+                                                            appTwoDigitDecimaNumber (change)="getChargeable()">
+                                                    </div>
+                                                    <label class="col-sm-1 col-form-label">W </label>
+                                                    <div class="col-sm-3">
+                                                        <input type="text" formControlName="width" class="form-control"
+                                                            appTwoDigitDecimaNumber (change)="getChargeable()">
+                                                    </div>
+                                                    <label class="col-sm-1 col-form-label">H </label>
+                                                    <div class="col-sm-3">
+                                                        <input type="text" formControlName="height"
+                                                            appTwoDigitDecimaNumber (change)="getChargeable()"
+                                                            class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="form-group input-group row ">
+                                                    <label class="col-sm-4 col-form-label ">Nature of Goods</label>
+                                                    <select class="form-control col-sm-8 ml-4"
+                                                        formControlName="goodsId">
+                                                        <option [selected]="true">
+                                                            Select Nature of Good</option>
+                                                        <option *ngFor="let p of responseGoods" [value]="p.goodsId"
+                                                            id="natureOfGoodsClose">
+                                                            {{p.destination}}|{{p.Nature}}</option>
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-outline-secondary ml-2" type="button"
+                                                            title="Search" data-toggle="modal"
+                                                            data-target=".bd-example19-modal-xl"><i
+                                                                class="fa fa-search"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group  row"><label
+                                                        class="col-sm-4 col-form-label">Chargeable
+                                                        Weight</label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" formControlName="chargeableWeight"
+                                                            appTwoDigitDecimaNumber readonly class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="hr-line-dashed"></div>
+                                        <div class="row">
+                                            <div class="col-sm">
+                                                <div class="input-group row mb-2">
+                                                    <label class="col-md-4 col-form-label">Select Shipper</label>
+                                                    <select class="form-control col-md-8 ml-4"
+                                                        formControlName="shipperId" (change)="getShipperDetailHouse()">
+                                                        <option *ngFor="let p of shippereResponse"
+                                                            [value]="p.shipperId">
+                                                            {{p.shipperName}}</option>
+                                                    </select>
+
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-outline-secondary ml-2" type="button"
+                                                            title="Search" data-toggle="modal"
+                                                            data-target=".bd-example18-modal-xl"><i
+                                                                class="fa fa-search"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group  row"><label
+                                                        class="col-sm-4 col-form-label">Country</label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" formControlName="shippercountryName"
+                                                            class="form-control" readonly>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group  row"><label
+                                                        class="col-sm-4 col-form-label">Phone
+                                                        Number</label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" formControlName="shipperPhoneNo"
+                                                            class="form-control" readonly>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group  row"><label
+                                                        class="col-sm-4 col-form-label">Address</label>
+                                                    <div class="col-sm-8">
+                                                        <textarea class="form-control" formControlName="shipperAddress"
+                                                            id="exampleFormControlTextarea1" rows="3"
+                                                            readonly></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="input-group row mb-2">
+                                                    <label class="col-md-4 col-form-label"> Select Cosignee</label>
+                                                    <select class="form-control col-md-8 ml-4" formControlName="cid"
+                                                        (change)="getConsigneeDetailHouse()">
+                                                        <option *ngFor="let p of consigneeResponse" [value]="p.cid">
+                                                            {{p.consigneeName}}</option>
+                                                    </select>
+
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-outline-secondary ml-2" type="button"
+                                                            title="Search" data-toggle="modal"
+                                                            data-target=".bd-example20-modal-xl"><i
+                                                                class="fa fa-search"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group  row"><label
+                                                        class="col-sm-4 col-form-label">Country</label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" formControlName="consigneecountryName"
+                                                            class="form-control" readonly>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group  row"><label
+                                                        class="col-sm-4 col-form-label">Phone
+                                                        Number</label>
+                                                    <div class="col-sm-8">
+                                                        <input type="text" formControlName="consigneePhoneNo"
+                                                            class="form-control" readonly>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group  row"><label
+                                                        class="col-sm-4 col-form-label">Address</label>
+                                                    <div class="col-sm-8">
+                                                        <textarea class="form-control"
+                                                            formControlName="consigneeAddress"
+                                                            id="exampleFormControlTextarea1" rows="3"
+                                                            readonly></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-lg-12" [hidden]="showHouse">
+                                    <div class="wrapper wrapper-content animated fadeInRight">
+                                        <div class="table-responsive">
+                                            <table datatable [dtOptions]="dtOptions3" [dtTrigger]="dtTrigger3"
+                                                class="table table-hover table-striped dt-responsive table-bordered"
+                                                cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Sr.</th>
+                                                        <th>HAWB No.</th>
+                                                        <th>AWB No.</th>
+                                                        <th>Pieces</th>
+                                                        <th>Length</th>
+                                                        <th>Width</th>
+                                                        <th>Height</th>
+                                                        <th>Chargeable Wt.</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let p of HouseAWB let ndx=index;">
+                                                        <td>{{ndx+1}}</td>
+                                                        <td><a>{{p.HAWBNo }}</a></td>
+                                                        <td><a>{{p.AWBNo }}</a></td>
+                                                        <td><a>{{p.pieces }}</a></td>
+                                                        <td><a>{{p.length }}</a></td>
+                                                        <td><a>{{p.width }}</a></td>
+                                                        <td><a>{{p.height }}</a></td>
+                                                        <td><a>{{p.chargeableWeight }}</a></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row wrapper border-bottom white-bg page-heading ">
+                                    <div class="col-md-12">
+                                        <a [hidden]="showeditButtonHouse" (click)="saveHouse('Update')"
+                                            class="btn btn-success color text-white float-right"><i
+                                                class="fa fa-pencil"></i>
+                                            Update </a>
+                                        <a [hidden]="showSaveButtonHouse" (click)="saveHouse('New')"
+                                            class="btn btn-success color text-white float-right"><i
+                                                class="fa fa-check "></i>
+                                            Save </a>
+                                        <a [hidden]="showCancelButtonHouse" (click)="showHideHouse('Cancel')"
+                                            class="btn btn-secondary text-white mr-2 float-right"><i
+                                                class="fa fa-times"></i>
+                                            Cancel
+                                        </a>
+                                    </div>
+                                    <div class=" col-lg-12 ">
+                                        <button [hidden]="shownewButtonHouse" (click)="showHideHouse('New')"
+                                            [disabled]="delivered == true"
+                                            class="btn btn-success color text-white float-right mr-3"><i
+                                                class="fa fa-plus"></i>
+                                            Add New House </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" id="tab-9" class="tab-pane">
+                        <div class="panel-body">
+                            <div class="col-lg-12">
+                                <div class="col-md-12" [hidden]="addnewAtt">
+                                    <form [formGroup]="AttachmentForm" role="form">
+                                        <div class="row">
+                                            <div class="col-sm">
+                                                <div class="form-group row"><label
+                                                        class="col-sm-4 col-form-label">Select
+                                                        Attachment Type</label>
+                                                    <div class="col-sm-8">
+                                                        <select class="form-control" formControlName="atttypeID">
+                                                            <option *ngFor="let p of AttachmentTypes"
+                                                                [value]="p.atttypeID">
+                                                                {{p.attType}}</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm">
+                                                <div class="form-group row">
+                                                    <label class="col-sm-3 col-form-label" for="file">Choose
+                                                        File</label>
+                                                    <div class="col-sm-9">
+                                                        <input id="logo" type="file" #fileUpload id="fileUpload"
+                                                            name="fileUpload" accept="image/x-png,image/jpg,image/jpeg"
+                                                            style="display:none;" />
+                                                        <div class="custom-file">
+                                                            <input id="logo" type="" class="custom-file-input"
+                                                                (click)="onClick()">
+                                                            <label for="logo"
+                                                                class="custom-file-label">{{fileName}}</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-lg-12" [hidden]="showAtt">
+                                    <div class="wrapper wrapper-content animated fadeInRight">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-striped dt-responsive table-bordered"
+                                                cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Sr.</th>
+                                                        <th>Attachment Type</th>
+                                                        <th>File Name</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let p of attachmentResponse let ndx=index;">
+                                                        <td>{{ndx+1}}</td>
+                                                        <td><a>{{p.attType }}</a></td>
+                                                        <td><a>{{p.fileName }}</a></td>
+                                                        <td>
+                                                            <button title="View" class="btn btn-light color btn-sm m-1"
+                                                                (click)="viewImage(p)"> <i class="fa fa-eye"
+                                                                    aria-hidden="true"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row wrapper border-bottom white-bg page-heading ">
+                                    <div class="col-md-12">
+                                        <button [hidden]="showeditButtonAtt" (click)="uploadFiles()"
+                                            class="btn btn-success color text-white float-right"><i
+                                                class="fa fa-pencil"></i>
+                                            Update </button>
+                                        <button [hidden]="showSaveButtonAtt" (click)="uploadFiles()"
+                                            class="btn btn-success color text-white float-right"><i
+                                                class="fa fa-check "></i>
+                                            Save </button>
+                                        <button [hidden]="showCancelButtonAtt" (click)="showHideATT('Cancel')"
+                                            class="btn btn-secondary text-white mr-3 mb-0 float-right"><i
+                                                class="fa fa-times"></i>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <button [hidden]="shownewButtonAtt" [disabled]="delivered == true"
+                                            (click)="showHideATT('New')"
+                                            class="btn btn-success color text-white float-right mr-3"><i
+                                                class="fa fa-plus"></i>
+                                            Add New Attachment </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="float-right">
+            All Right <strong>Reserved</strong>.
+        </div>
+        <div>
+            <strong>Copyright</strong> Menzies RAS &copy; 2021
+        </div>
+    </div>
+</div>
+
+<!-- <div *ngIf="notifyAWBState == true" class="modal fade bd-example-modal-xl" id="view-assigned-group-role-modal"
+    data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="assignedGroupRoleModalLabel">Nature Of Goods Detail</h4>
+                <button type="button" class="close" #closeNatureOfGoodsModal data-dismiss="modal" aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <app-nature-of-goods (notifyAWB)="notifyAWB($event)"></app-nature-of-goods>
+        </div>
+    </div>
+</div> -->
+
+<!-- <div *ngIf="notifyNewAgentTab2State == true" class="modal fade bd-example1-modal-xl" id="view-assigned-group-role-modal"
+    data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Consolidator Details</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeConsolidatorModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <app-agents (notifyNewAgentTab2)="notifyNewAgentTab2($event)"></app-agents>
+        </div>
+    </div>
+</div> -->
+
+<!-- <div *ngIf="notifyComidState == true" class="modal fade bd-example2-modal-xl" id="view-assigned-group-role-modal"
+    data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Commodity Details</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeCommodityModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <app-commodity (notifyComid)="notifyComid($event)"></app-commodity>
+        </div>
+    </div>
+</div> -->
+
+<!-- <div *ngIf="notifyNewAgentTab1State == true" class="modal fade bd-example3-modal-xl" id="view-assigned-group-role-modal"
+    data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Agents Details</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeAgentsModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <app-agents (notifyNewAgentTab1)="notifyNewAgentTab1($event)"></app-agents>
+        </div>
+    </div>
+</div> -->
+
+<!-- <div *ngIf="notifyShipperState == true" class="modal fade bd-example4-modal-xl" id="view-assigned-group-role-modal"
+    data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Shipper Details</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeShipperModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <app-shipper (notifyShipper)="notifyShipper($event)"></app-shipper>
+        </div>
+    </div>
+</div> -->
+
+<!-- <div *ngIf="notifyConsigneeState == true" class="modal fade bd-example5-modal-xl" id="view-assigned-group-role-modal"
+    data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Consignee Details</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeConsigneeModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <app-consignee (notifyConsignee)="notifyConsignee($event)"></app-consignee>
+        </div>
+    </div>
+</div> -->
+<!-- <div *ngIf="notifyAWBState == true" class="modal fade bd-acceptanceRPT-modal-xl" id="view-assigned-group-role-modal"
+    data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+    aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="assignedGroupRoleModalLabel">Nature Of Goods Detail</h4>
+                <button type="button" class="close" #closeNatureOfGoodsModal data-dismiss="modal" aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <ng2-pdfjs-viewer #pdfViewer></ng2-pdfjs-viewer>
+        </div>
+    </div>
+</div> -->
+
+<!-- <div class="modal fade bd-WeightRPT-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="assignedGroupRoleModalLabel">RCS Detail</h4>
+                <button type="button" class="close" #closeNatureOfGoodsModal data-dismiss="modal" aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <ngx-extended-pdf-viewer [src]="src" [useBrowserLocale]="true">
+            </ngx-extended-pdf-viewer>
+        </div>
+    </div>
+</div> -->
+
+<!-- <div class="modal fade bd-example12-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Add By AWB Detail</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeAWBDetailListModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body pt-1 pb-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+                                        class="table table-hover table-striped table-bordered nowrap" cellspacing="0"
+                                        width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.</th>
+                                                <th>Action</th>
+                                                <th>AWBNo</th>
+                                                <th>AWBType</th>
+                                                <th>Destination</th>
+                                                <th>Pieces</th>
+                                                <th>chargeableWeight</th>
+                                                <th>grossWeight</th>
+                                                <th>laodType</th>
+                                                <th>OvrShipment</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let p of AcceptanceDetailModel.AcceptanceDetail let ndx=index;">
+                                                <td>{{ndx+1}}</td>
+                                                <td><button class="btn btn-primary  btn-sm m-1" title="Attach CNIC"> <i
+                                                            (click)="searchAWBDetail(p)" class="fa fa-search"
+                                                            aria-hidden="true"></i> </button></td>
+                                                <td>{{p.AWBNo}}</td>
+                                                <td>{{p.AWBType}}</td>
+                                                <td>{{p.Destination}}</td>
+                                                <td>{{p.Pieces}}</td>
+                                                <td>{{p.chargeableWeight}}</td>
+                                                <td>{{p.grossWeight}}</td>
+                                                <td>{{p.shipperId}}</td>
+                                                <td><input readonly type="checkbox" name="OvrShipment"
+                                                        [checked]="p.OvrShipment" value="{{p.OvrShipment}}"
+                                                        onClick="return false"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<div class="modal fade bd-example13-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Commodity List</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeCommodityListModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body pt-1 pb-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+                                        class="table table-hover table-striped table-bordered nowrap" cellspacing="0"
+                                        width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.</th>
+                                                <th>Description</th>
+                                                <th>Handling codes</th>
+                                                <th>Supp Info</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let p of responseCommodityList let ndx=index;"
+                                                (dblclick)="setCommodity(p)">
+                                                <td>{{ndx+1}}</td>
+                                                <td><a>{{p.comm_description }}</a></td>
+                                                <td><a>{{p.handlingCodes }}</a></td>
+                                                <td><a>{{p.suppInfo }}</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example14-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Agent List</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeAgentListModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body pt-1 pb-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+                                        class="table table-hover table-striped table-bordered nowrap" cellspacing="0"
+                                        width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.</th>
+                                                <th>Agent Name</th>
+                                                <th>Agent Type</th>
+                                                <th>Mobile</th>
+                                                <th>CNIC</th>
+                                                <th>PhoneNo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let p of agentsResponseList let ndx=index;"
+                                                (dblclick)="setAgent(p)">
+                                                <td>{{ndx+1}}</td>
+                                                <td><a>{{p.agentName }}</a></td>
+                                                <td>{{p.agentType}}</td>
+                                                <td>{{p.mobileNo}}</td>
+                                                <td>{{p.CNIC}}</td>
+                                                <td>{{p.PhoneNo}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example15-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Shipper List</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeShipperListModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body pt-1 pb-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+                                        class="table table-hover table-striped table-bordered nowrap" cellspacing="0"
+                                        width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.</th>
+                                                <th>Shipper Name</th>
+                                                <th>Phone No.</th>
+                                                <th>Mobile Number</th>
+                                                <th>Station/Airport</th>
+                                                <th>City</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let p of shippereResponseList let ndx=index;"
+                                                (dblclick)="setShipper(p)">
+                                                <td>{{ndx+1}}</td>
+                                                <td><a>{{p.shipperName }}</a></td>
+                                                <td>{{p.PhoneNo}}</td>
+                                                <td>{{p.mobileNo}}</td>
+                                                <td>{{p.airportName}}</td>
+                                                <td>{{p.cityName}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example16-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Consignee List</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeConsigneeListModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body pt-1 pb-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+                                        class="table table-hover table-striped table-bordered nowrap" cellspacing="0"
+                                        width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.</th>
+                                                <th>Consignee Name</th>
+                                                <th>Phone No.</th>
+                                                <th>Mobile Number</th>
+                                                <th>Station/Airport</th>
+                                                <th>City</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let p of consigneeResponseTable let ndx=index;"
+                                                (dblclick)="setConsignee(p)">
+                                                <td>{{ndx+1}}</td>
+                                                <td><a>{{p.consigneeName }}</a></td>
+                                                <td>{{p.PhoneNo}}</td>
+                                                <td>{{p.mobileNo}}</td>
+                                                <td>{{p.airportName}}</td>
+                                                <td>{{p.cityName}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example17-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Nature of Goods List</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeNatureofGoodsListModal
+                    aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body pt-1 pb-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+                                        class="table table-hover table-striped table-bordered nowrap" cellspacing="0"
+                                        width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.</th>
+                                                <th>Nature</th>
+                                                <th>Destination</th>
+                                                <th>Cut of Time</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="cursor:pointer;" *ngFor="let p of responseGoods let ndx=index;"
+                                                [class.selected]="ndx === selectedGuarantor" (dblclick)="setGoods(p)">
+                                                <td>{{ndx+1}}</td>
+                                                <td><a>{{p.Nature }}</a></td>
+                                                <td><a>{{p.destination }}</a></td>
+                                                <td><a>{{p.cutTime }}</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example18-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Shipper List</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeShipperHouseListModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body pt-1 pb-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+                                        class="table table-hover table-striped table-bordered nowrap" cellspacing="0"
+                                        width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.</th>
+                                                <th>Shipper Name</th>
+                                                <th>Phone No.</th>
+                                                <th>Mobile Number</th>
+                                                <th>Station/Airport</th>
+                                                <th>City</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let p of shippereResponse let ndx=index;"
+                                                (dblclick)="setShipperHouse(p)">
+                                                <td>{{ndx+1}}</td>
+                                                <td><a>{{p.shipperName }}</a></td>
+                                                <td>{{p.PhoneNo}}</td>
+                                                <td>{{p.mobileNo}}</td>
+                                                <td>{{p.airportName}}</td>
+                                                <td>{{p.cityName}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example18-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Shipper List</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeShipperHouseListModal aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body pt-1 pb-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+                                        class="table table-hover table-striped table-bordered nowrap" cellspacing="0"
+                                        width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.</th>
+                                                <th>Shipper Name</th>
+                                                <th>Phone No.</th>
+                                                <th>Mobile Number</th>
+                                                <th>Station/Airport</th>
+                                                <th>City</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let p of shippereResponse let ndx=index;"
+                                                (dblclick)="setShipperHouse(p)">
+                                                <td>{{ndx+1}}</td>
+                                                <td><a>{{p.shipperName }}</a></td>
+                                                <td>{{p.PhoneNo}}</td>
+                                                <td>{{p.mobileNo}}</td>
+                                                <td>{{p.airportName}}</td>
+                                                <td>{{p.cityName}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example19-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Nature of Goods List</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeNatureofGoodsHouseListModal
+                    aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body pt-1 pb-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+                                        class="table table-hover table-striped table-bordered nowrap" cellspacing="0"
+                                        width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.</th>
+                                                <th>Nature</th>
+                                                <th>Destination</th>
+                                                <th>Cut of Time</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr style="cursor:pointer;" *ngFor="let p of responseGoods let ndx=index;"
+                                                [class.selected]="ndx === selectedGuarantor"
+                                                (dblclick)="setGoodsHouse(p)">
+                                                <td>{{ndx+1}}</td>
+                                                <td><a>{{p.Nature }}</a></td>
+                                                <td><a>{{p.destination }}</a></td>
+                                                <td><a>{{p.cutTime }}</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example20-modal-xl" id="view-assigned-group-role-modal" data-backdrop="static"
+    data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="assignedGroupRoleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pt-1 pb-1">
+                <h4 class="modal-title" id="viewLeaveModelLabel">Consignee List</h4>
+                <button type="button" class="close" data-dismiss="modal" #closeConsigneeHouseListModal
+                    aria-hidden="true">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body pt-1 pb-1">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox-content">
+                                <div class="table-responsive">
+                                    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger"
+                                        class="table table-hover table-striped table-bordered nowrap" cellspacing="0"
+                                        width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Sr.</th>
+                                                <th>Consignee Name</th>
+                                                <th>Phone No.</th>
+                                                <th>Mobile Number</th>
+                                                <th>Station/Airport</th>
+                                                <th>City</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let p of consigneeResponse let ndx=index;"
+                                                (dblclick)="setConsigneeHouse(p)">
+                                                <td>{{ndx+1}}</td>
+                                                <td><a>{{p.consigneeName }}</a></td>
+                                                <td>{{p.PhoneNo}}</td>
+                                                <td>{{p.mobileNo}}</td>
+                                                <td>{{p.airportName}}</td>
+                                                <td>{{p.cityName}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
